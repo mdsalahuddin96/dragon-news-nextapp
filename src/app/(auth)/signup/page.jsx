@@ -1,83 +1,123 @@
-'use client'
+"use client";
 
-import { useForm } from "react-hook-form";
+import { authClient } from "@/lib/auth-client";
+import {
+  Button,
+  Description,
+  FieldError,
+  Form,
+  Input,
+  Label,
+  TextField,
+} from "@heroui/react";
+import { useRouter } from "next/navigation";
+
+
+
+
+import { FaCheck } from "react-icons/fa6";
+import { toast } from "react-toastify";
 
 const SignUpPage = () => {
-    const{register,handleSubmit,formState:{errors}}=useForm()
-    const onSubmit=(data)=>{
-        console.log(data)
+  const router=useRouter()
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const userData = Object.fromEntries(formData);
+    const { data, error } = await authClient.signUp.email({
+      name:userData.name,
+      email:userData.email,
+      password:userData.password,
+      image:userData.image
+    },{
+      onSuccess:()=>{
+        router.push('/')
+      }
+    });
+    console.log(data, error);
+    if (error) {
+      toast.error("Error signing up: " + error.message);
+    } else {
+      toast.success("SignUp Successful!");
     }
+  };
   return (
-    <div>
-      <h2>Register Form</h2>
-      <div className="min-h-80 border flex items-center justify-center">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <label>Name:</label>
-          <br />
-          <input type="text" placeholder="Enter your name" {...register('name',{
-            required:'Name must be required.',
-            minLength:{
-                value:5,
-                message:'Minimum 5 character '
+    <div className="min-h-80 flex flex-col justify-center items-center bg-slate-100 container mx-auto pt-10">
+      <h1 className="text-2xl font-semibold text-gray-600 mb-4">
+        Please SignUp
+      </h1>
+      <Form
+        className="flex w-96 flex-col gap-4 border border-gray-300 p-4 rounded-2xl shadow-2xl"
+        onSubmit={onSubmit}
+      >
+        <TextField
+          isRequired
+          name="name"
+          validate={(value) => {
+            if (value.length < 3) {
+              return "Name must be at least 3 characters";
             }
-          })} />
-          {errors.name&&<p className="text-red-500">{errors.name.message}</p>}
-          <br />
-          <br />
-
-          <label>Email:</label>
-          <br />
-          <input type="email" placeholder="Enter your email" {...register("email",{
-            required:"Email must be required",
-            pattern:{
-                value:"/^[^\s@]+@[^\s@]+\.[^\s@]+$/",
-                message:'Write correct email'
+            return null;
+          }}
+        >
+          <Label>Name</Label>
+          <Input placeholder="Enter your name" />
+          <FieldError />
+        </TextField>
+        <TextField isRequired name="image">
+          <Label>Photo URL</Label>
+          <Input placeholder="Enter Photo URL" />
+        </TextField>
+        <TextField
+          isRequired
+          name="email"
+          type="email"
+          validate={(value) => {
+            if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
+              return "Please enter a valid email address";
             }
-          })} />
-          {errors.email&&<p className="text-red-500">{errors.email.message}</p>}
-          <br />
-          <br />
-
-          <label>Password:</label>
-          <br />
-          <input type="password" name="password" placeholder="Enter password" />
-          <br />
-          <br />
-
-          <label>Confirm Password:</label>
-          <br />
-          <input
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm password"
-          />
-          <br />
-          <br />
-
-          <label>Age:</label>
-          <br />
-          <input type="number" name="age" />
-          <br />
-          <br />
-
-          <label>Gender:</label>
-          <br />
-          <select name="gender">
-            <option value="">Select</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-          <br />
-          <br />
-
-          <input type="checkbox" name="terms" />
-          <label>I accept terms and conditions</label>
-          <br />
-          <br />
-
-          <button type="submit">Register</button>
-        </form>
-      </div>
+            return null;
+          }}
+        >
+          <Label>Email</Label>
+          <Input placeholder="Enter your email" />
+          <FieldError />
+        </TextField>
+        <TextField
+          isRequired
+          minLength={8}
+          name="password"
+          type="password"
+          validate={(value) => {
+            if (value.length < 8) {
+              return "Password must be at least 8 characters";
+            }
+            if (!/[A-Z]/.test(value)) {
+              return "Password must contain at least one uppercase letter";
+            }
+            if (!/[0-9]/.test(value)) {
+              return "Password must contain at least one number";
+            }
+            return null;
+          }}
+        >
+          <Label>Password</Label>
+          <Input placeholder="Enter your password" />
+          <Description>
+            Must be at least 8 characters with 1 uppercase and 1 number
+          </Description>
+          <FieldError />
+        </TextField>
+        <div className="flex gap-2">
+          <Button type="submit" className="w-full rounded-sm bg-gray-900">
+            <FaCheck />
+            SignUp
+          </Button>
+          {/* <Button type="reset" variant="secondary">
+            Reset
+          </Button> */}
+        </div>
+      </Form>
     </div>
   );
 };

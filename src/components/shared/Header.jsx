@@ -1,4 +1,5 @@
 import logo from "@/assets/logo.png";
+
 import { Button } from "@heroui/react";
 import Image from "next/image";
 import Marquee from "react-fast-marquee";
@@ -10,6 +11,7 @@ const Header = () => {
     month: "long",
     day: "numeric",
   });
+
   return (
     <div className="flex flex-col justify-center items-center gap-2 my-4 container mx-auto ">
       <Image src={logo} alt="logo" />
