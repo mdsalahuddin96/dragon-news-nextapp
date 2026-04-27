@@ -28,25 +28,30 @@ const Navbar = () => {
 
   return (
     <nav className="container mx-auto ">
-      <header className="flex items-center justify-between py-4">
-        <div className="flex items-center gap-3"></div>
-        <ul className="flex items-center gap-4">
+      <header className="flex justify-between items-center ">
+        <div className=""></div>
+        {user&&<div className=""></div>}
+        
+        <ul className="flex items-center justify-end gap-4 ">
           {navItems.map((item, ind) => (
             <NavLinks key={ind} item={item}></NavLinks>
           ))}
         </ul>
+
         {isPending ? (
           <div className="flex flex-col items-center gap-2">
             <Spinner color="success" />
             <span className="text-xs text-muted"></span>
           </div>
         ) : user ? (
-          <div className="flex items-center gap-1">
+          <div className="flex  items-center gap-1 ">
+            <p>{user.name}</p>
             <Image
               src={user?.image || userAvatar}
               alt="user avatar image"
               width={40}
               height={40}
+              className="rounded-full"
             />
             <Button
               className="bg-[#403F3F] text-white rounded-none"

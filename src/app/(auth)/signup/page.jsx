@@ -11,30 +11,32 @@ import {
   TextField,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
-
-
-
-
-import { FaCheck } from "react-icons/fa6";
+import { useState } from "react";
+import { FaCheck, FaRegEyeSlash } from "react-icons/fa6";
+import { IoEyeOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 
 const SignUpPage = () => {
-  const router=useRouter()
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isPassword, setIsPassword] = useState("");
   const onSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const userData = Object.fromEntries(formData);
-    const { data, error } = await authClient.signUp.email({
-      name:userData.name,
-      email:userData.email,
-      password:userData.password,
-      image:userData.image
-    },{
-      onSuccess:()=>{
-        router.push('/')
-      }
-    });
-    console.log(data, error);
+    const { data, error } = await authClient.signUp.email(
+      {
+        name: userData.name,
+        email: userData.email,
+        password: userData.password,
+        image: userData.image,
+      },
+      {
+        onSuccess: () => {
+          router.push("/");
+        },
+      },
+    );
     if (error) {
       toast.error("Error signing up: " + error.message);
     } else {
@@ -84,10 +86,11 @@ const SignUpPage = () => {
           <FieldError />
         </TextField>
         <TextField
+          className="relative"
           isRequired
           minLength={8}
           name="password"
-          type="password"
+          type={showPassword ? "text" : "password"}
           validate={(value) => {
             if (value.length < 8) {
               return "Password must be at least 8 characters";
@@ -102,7 +105,19 @@ const SignUpPage = () => {
           }}
         >
           <Label>Password</Label>
-          <Input placeholder="Enter your password" />
+          <Input
+            value={isPassword}
+            onChange={(e) => setIsPassword(e.target.value)}
+            placeholder="Enter your password"
+          />
+          {isPassword.length > 0 && (
+            <span
+              className="absolute top-9 right-5"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <IoEyeOutline /> : <FaRegEyeSlash />}
+            </span>
+          )}
           <Description>
             Must be at least 8 characters with 1 uppercase and 1 number
           </Description>
@@ -113,9 +128,6 @@ const SignUpPage = () => {
             <FaCheck />
             SignUp
           </Button>
-          {/* <Button type="reset" variant="secondary">
-            Reset
-          </Button> */}
         </div>
       </Form>
     </div>
